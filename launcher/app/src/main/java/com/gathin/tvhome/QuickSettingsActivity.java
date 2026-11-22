@@ -41,6 +41,23 @@ public final class QuickSettingsActivity extends Activity {
         findViewById(R.id.scrim).setOnClickListener(v -> finish());
         LinearLayout rows = findViewById(R.id.rows);
         addRow(rows, R.drawable.ic_settings, R.string.tv_settings, 0, SystemSettings.intent(this, Settings.ACTION_SETTINGS));
+        // tv_quick_settings_action: the TV's own quick settings. "broadcast:<action>" sends a broadcast (Sony's Quick
+        // Settings bar); else an activity, by action or package/activity component. Empty leaves the row out.
+        String quick = getString(R.string.tv_quick_settings_action);
+        if (quick.startsWith("broadcast:")) {
+            Intent bar = new Intent(quick.substring(10));
+            addRow(rows, R.drawable.ic_tune, R.string.tv_quick_settings, 0, null).setOnClickListener(v -> {
+                finish();
+                // After the panel has gone: the bar is a system window, and must not be the one that closes with it.
+                // Not v.postDelayed: a view detached by finish() never runs it.
+                android.content.Context app = getApplicationContext();
+                new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(() -> app.sendBroadcast(bar), 250);
+            });
+        } else if (!quick.isEmpty()) {
+            android.content.ComponentName component = android.content.ComponentName.unflattenFromString(quick);
+            addRow(rows, R.drawable.ic_tune, R.string.tv_quick_settings, 0,
+                    component != null ? new Intent().setComponent(component) : new Intent(quick));
+        }
         addRow(rows, R.drawable.ic_picture, R.string.quick_picture, 0, SystemSettings.displayIntent(this));
         addRow(rows, R.drawable.ic_wifi, R.string.quick_network, 0, SystemSettings.intent(this, Settings.ACTION_WIFI_SETTINGS));
         addRow(rows, R.drawable.ic_apps, R.string.quick_apps, R.string.quick_apps_hint,
@@ -67,7 +84,7 @@ public final class QuickSettingsActivity extends Activity {
         overridePendingTransition(0, 0);
     }
 
-    private void addRow(LinearLayout rows, int icon, int title, int status, Intent target) {
+    private View addRow(LinearLayout rows, int icon, int title, int status, Intent target) {
         View row = getLayoutInflater().inflate(R.layout.item_input, rows, false);
         ((ImageView) row.findViewById(R.id.icon)).setImageResource(icon);
         ((TextView) row.findViewById(R.id.title)).setText(title);
@@ -84,5 +101,6 @@ public final class QuickSettingsActivity extends Activity {
             finish();
         });
         rows.addView(row);
+        return row;
     }
 }

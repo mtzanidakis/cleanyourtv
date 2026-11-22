@@ -190,6 +190,13 @@
          with TV settings, Display, Network, Apps (re-enable an app) and Launcher settings, over whatever is on screen.
          Both keys can also be set from a theme's config.json ("settings_key_keycodes": [83]). -->
     <bool name="settings_key_panel">false</bool>
+    <!-- A "TV quick settings" row in that panel, under TV system settings, for the TV's own quick settings where the
+         panel replaced them. Empty (the default) leaves the row out. "broadcast:<action>" sends that broadcast; anything
+         else is an activity to open, by intent action or package/activity component. Sony BRAVIA (Google TV 12):
+         broadcast:com.sony.dtv.systemui.action.SHOW_QUICK_SETTINGS opens Sony's Quick Settings bar, whose Audio output
+         tile switches between TV speakers, audio system and paired Bluetooth headphones; the bar reopens on the tile
+         it was left on. -->
+    <string name="tv_quick_settings_action" translatable="false"></string>
     <!-- true: those Settings buttons clear the TV Settings task before opening Settings (with settings_key_panel off).
          On some MediaTek boards KEYCODE_SETTINGS is also a global key: com.mediatek.tv.service opens Display & Sound in
          the same task before the helper sees the press, so Settings stacked on it and Back landed there (Skyworth
